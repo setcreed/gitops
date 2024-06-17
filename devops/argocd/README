@@ -1,0 +1,11 @@
+argocd 版本：2.10.12
+
+kubectl create namespace argocd
+kubectl apply -n argocd -f install.yaml
+
+
+部署argocd的ingress的时候，需要把ingress-nginx的配置改一下，在启动容器的时候加入一个参数：
+spec:
+  containers:
+  - args:
+    - --enable-ssl-passthrough
