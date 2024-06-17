@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jenkins-agent
+  namespace: argocd
+spec:
+  destination:
+    namespace: jenkins
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    path: devops/jenkins/jenkins-agent-manifests
+    repoURL: https://github.com/setcreed/gitops.git
+    targetRevision: master
+    directory:
+      recurse: false
+  syncPolicy:
+    automated:
+      prune: true
+    syncOptions:
+      - CreateNamespace=true

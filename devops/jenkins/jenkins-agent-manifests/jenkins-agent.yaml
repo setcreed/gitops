@@ -1,0 +1,60 @@
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  labels:
+    k8s-app: jenkinsagent
+  name: jenkinsagent
+  namespace: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: jenkinsagent
+  template:
+    metadata:
+      labels:
+        k8s-app: jenkinsagent
+    spec:
+      containers:
+        - name: jenkinsagent
+          image: jenkins/inbound-agent
+          securityContext:
+            privileged: true
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 4000m
+              memory: 8Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          env:
+            - name: JENKINS_URL
+              value: http://jenkins.jenkins.svc.cluster.local:8080
+            - name: JENKINS_SECRET
+              value: 7b847db15ad0808329eb77f97243d0910fbefb11a51d58a5a9b110690ddab584
+            - name: JENKINS_AGENT_NAME
+              value: build
+            - name: JENKINS_AGENT_WORKDIR
+              value: /home/jenkins/workspace
+          volumeMounts:
+            - name: jenkins-build-cache
+              mountPath: /home/jenkins/jenkins-build-cache
+            - name: jenkins-workspace
+              mountPath: /home/jenkins/workspace
+  volumeClaimTemplates:
+    - metadata:
+        name: jenkins-build-cache
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 10Gi
+    - metadata:
+        name: jenkins-workspace
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 10Gi
